@@ -143,7 +143,7 @@ void analyze_file(FILE *file, struct climate_info **states, int num_states) {
         char* pressure=strtok(NULL,delim);
         char* temperature=strtok(NULL,delim);
 
-        double dtemp=strtod(temperature,NULL);
+        double dtemp=strtod(temperature,NULL)*1.8-459.67;
 
         int i;
         int already_exist=0;
@@ -169,7 +169,7 @@ void analyze_file(FILE *file, struct climate_info **states, int num_states) {
           current->sum_cloudcover=strtold(cloud,NULL);
           current->lightning=strtoul(lightning,NULL,10);
           current->sum_pressure=strtoul(pressure,NULL,10);
-          current->sum_temperature=strtoul(temperature,NULL, 10);
+          current->sum_temperature=dtemp;
           current->max_temp=dtemp;
           current->min_temp=dtemp;
           strcpy(current->max_time, time);
@@ -181,7 +181,7 @@ void analyze_file(FILE *file, struct climate_info **states, int num_states) {
           current->sum_cloudcover+=strtold(cloud,NULL);
           current->lightning+=strtoul(lightning,NULL,10);
           current->sum_pressure+=strtoul(pressure,NULL,10);
-          current->sum_temperature+=strtoul(temperature,NULL, 10);
+          current->sum_temperature+=dtemp;
           if(dtemp>current->max_temp){
             current->max_temp=dtemp;
             strcpy(current->max_time, time);
@@ -236,11 +236,11 @@ void print_report(struct climate_info *states[], int num_states) {
             printf("-- State: %s --\n", info->code);
             printf("Number of Records: %lu\n",num_records);
             printf("Average Humidity: %0.1f%%\n",average_humidity);
-            printf("Average Temperature: %0.1fF\n",average_temperature*1.8-459.67);
-            printf("Max Temperature: %0.1fF\n",max_temperature*1.8-459.67);
+            printf("Average Temperature: %0.1fF\n",average_temperature);
+            printf("Max Temperature: %0.1fF\n",max_temperature);
             time_t max_t = (time_t) strtoll(max_time, NULL, 10)/1000; 
             printf("Max Temperature on: %s",ctime(&(max_t)));
-            printf("Min Temperature: %0.1fF\n",min_temperature*1.8-459.67);
+            printf("Min Temperature: %0.1fF\n",min_temperature);
             time_t min_t = (time_t) strtoll(min_time, NULL, 10)/1000; 
             printf("Min Temperature on: %s\n",ctime(&(min_t)));
             printf("Lightning Strikes: %lu\n", lightenings);
