@@ -184,7 +184,7 @@ void analyze_file(FILE *file, struct climate_info **states, int num_states) {
           current->sum_temperature+=strtoul(temperature,NULL, 10);
           if(dtemp>current->max_temp){
             current->max_temp=dtemp;
-            current->max_temp=strtod(temperature, NULL);
+            strcpy(current->max_time, time);
           }
           if(dtemp<current->min_temp){
             current->min_temp=dtemp;
@@ -234,17 +234,17 @@ void print_report(struct climate_info *states[], int num_states) {
             double average_cloud=info->sum_cloudcover/num_records;
 
             printf("Number of Records: %lu\n",num_records);
-            printf("Average Humidity: %f%%\n",average_humidity);
-            printf("Average Temperature: %fF\n",average_temperature*1.8-459.67);
-            printf("Max Temperature: %fF\n",max_temperature);
-            time_t max_t = (time_t) strtoll(max_time, NULL, 10); 
+            printf("Average Humidity: %0.1f%%\n",average_humidity);
+            printf("Average Temperature: %0.1fF\n",average_temperature*1.8-459.67);
+            printf("Max Temperature: %0.1fF\n",max_temperature*1.8-459.67);
+            time_t max_t = (time_t) strtoll(max_time, NULL, 10)/1000; 
             printf("Max Temperature on: %s",ctime(&(max_t)));
-            printf("Min Temperature: %fF\n",min_temperature);
-            time_t min_t = (time_t) strtoll(min_time, NULL, 10); 
+            printf("Min Temperature: %0.1fF\n",min_temperature*1.8-459.67);
+            time_t min_t = (time_t) strtoll(min_time, NULL, 10)/1000; 
             printf("Min Temperature on: %s\n",ctime(&(min_t)));
             printf("Lightning Strikes: %lu\n", lightenings);
             printf("Records with Snow Cover: %lu\n", snow);
-            printf("Average Cloud Cover: %f%%\n", average_cloud);
+            printf("Average Cloud Cover: %0.1f%%\n", average_cloud);
         }
     }
 }
