@@ -233,6 +233,7 @@ void print_report(struct climate_info *states[], int num_states) {
             unsigned long snow=info->snow;
             double average_cloud=info->sum_cloudcover/num_records;
 
+            printf("-- State: %s --\n", info->code);
             printf("Number of Records: %lu\n",num_records);
             printf("Average Humidity: %0.1f%%\n",average_humidity);
             printf("Average Temperature: %0.1fF\n",average_temperature*1.8-459.67);
