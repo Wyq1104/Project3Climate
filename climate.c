@@ -73,7 +73,7 @@
 
 /* TODO: Add elements to the climate_info struct as necessary. */
 struct climate_info {
-    unsigned long num_records;
+  unsigned long num_records;
     char code[3];
     double sum_humidity;
     unsigned long snow;
@@ -93,16 +93,19 @@ void print_report(struct climate_info *states[], int num_states);
 int main(int argc, char *argv[]) {
 
     /* TODO: fix this conditional. You should be able to read multiple files. */
-    if (argc != 2) {
-        printf("Usage: %s tdv_file1 tdv_file2 ... tdv_fileN \n", argv[0]);
-        return EXIT_FAILURE;
-    }
+    // if (argc != 2) {
+    //     printf("Usage: %s tdv_file1 tdv_file2 ... tdv_fileN \n", argv[0]);
+    //     return EXIT_FAILURE;
+    // }
 
     /* Let's create an array to store our state data in. As we know, there are
      * 50 US states. */
     struct climate_info *states[NUM_STATES] = { NULL };
-
-    int num_states=0;
+    int j;
+    for(int j=0;j<NUM_STATES;j++){
+      *(states+j)=malloc(sizeof(struct climate_info));
+    }
+    int num_states=NUM_STATES;
     int i;
     FILE* fp;
     for (i = 1; i < argc; ++i) {
@@ -113,8 +116,8 @@ int main(int argc, char *argv[]) {
 
         /* TODO: Analyze the file */
         /* analyze_file(file, states, NUM_STATES); */
-        fp=fopen(argv[i],"r");
-        if (fp == NULL) {
+      fp=fopen(argv[i],"r");
+      if (fp == NULL) {
         printf("Error in opening file %s\n",argv[i]);
         continue;
       }
@@ -129,33 +132,37 @@ void analyze_file(FILE *file, struct climate_info **states, int num_states) {
     const int line_sz = 100;
     char line[line_sz];
     while (fgets(line, line_sz, file) != NULL) {
-            char delim[2]="\t";
-            char* code=strtok(line, delim);
-            char* time=strtok(NULL,delim);
-            char* location=strtok(NULL,delim);
-            char* humidity=strtok(NULL,delim);
-            char* snow=strtok(NULL,delim);
-            char* cloud=strtok(NULL,delim);
-            char* lightning=strtok(NULL,delim);
-            char* pressure=strtok(NULL,delim);
-            char* temperature=strtok(NULL,delim);
+        char delim[2]="\t";
+        char* code=strtok(line, delim);
+        char* time=strtok(NULL,delim);
+        char* location=strtok(NULL,delim);
+        char* humidity=strtok(NULL,delim);
+        char* snow=strtok(NULL,delim);
+        char* cloud=strtok(NULL,delim);
+        char* lightning=strtok(NULL,delim);
+        char* pressure=strtok(NULL,delim);
+        char* temperature=strtok(NULL,delim);
 
         double dtemp=strtod(temperature,NULL);
 
-            int i;
-            int already_exist=0;
-            struct climate_info* current;
-            for(int i=0;i<num_states;i++){
-                char* curr_code=(*(states+i))->code;
-                if(strcmp(curr_code, code)){
-                    current=*(states+i);
-                    already_exist=1;
-                    break;
-                }
-            }
-            if(!already_exist){
-                current=*(states+num_states);
-                current->num_records=1;
+        int i;
+        int already_exist=0;
+        struct climate_info* current;
+        for(i=0;i<num_states;i++){
+          if((*(states+i))->num_records==0){
+            break;
+          }
+          char* curr_code=(*(states+i))->code;
+          if(strcmp(curr_code, code)==0){
+            current=*(states+i);
+            already_exist=1;
+            break;
+          }
+          
+        }
+        if(!already_exist){
+          current=*(states+i);
+          current->num_records=1;
           strcpy(current->code, code);
           current->sum_humidity=strtold(humidity,NULL);
           current->snow=strtoul(snow,NULL,10);
@@ -167,8 +174,7 @@ void analyze_file(FILE *file, struct climate_info **states, int num_states) {
           current->min_temp=dtemp;
           strcpy(current->max_time, time);
           strcpy(current->min_time, time);
-          num_states=1;
-            }else{
+        }else{
           current->num_records++;
           current->sum_humidity+=strtold(humidity,NULL);
           current->snow+=strtoul(snow,NULL,10);
@@ -184,7 +190,7 @@ void analyze_file(FILE *file, struct climate_info **states, int num_states) {
             current->min_temp=dtemp;
             strcpy(current->min_time, time);
           }
-          num_states++;
+      
         }
         /* TODO: We need to do a few things here:
          *
@@ -214,7 +220,7 @@ void print_report(struct climate_info *states[], int num_states) {
       /* TODO: Print out the summary for each state. See format above. */
 
     for(i=0;i<num_states;i++){
-      if (states[i] != NULL) {
+      if (states[i]->num_records != 0) {
             struct climate_info *info = states[i];
             unsigned long num_records=info->num_records;
             double average_humidity=info->sum_humidity/num_records;
@@ -231,16 +237,14 @@ void print_report(struct climate_info *states[], int num_states) {
             printf("Average Humidity: %f%%\n",average_humidity);
             printf("Average Temperature: %fF\n",average_temperature*1.8-459.67);
             printf("Max Temperature: %fF\n",max_temperature);
-            time_t max_t = (time_t) strtol(max_time, NULL, 10); 
+            time_t max_t = (time_t) strtoll(max_time, NULL, 10); 
             printf("Max Temperature on: %s",ctime(&(max_t)));
             printf("Min Temperature: %fF\n",min_temperature);
-            time_t min_t = (time_t) strtol(min_time, NULL, 10); 
+            time_t min_t = (time_t) strtoll(min_time, NULL, 10); 
             printf("Min Temperature on: %s\n",ctime(&(min_t)));
             printf("Lightning Strikes: %lu\n", lightenings);
             printf("Records with Snow Cover: %lu\n", snow);
             printf("Average Cloud Cover: %f%%\n", average_cloud);
-
-
         }
     }
 }
